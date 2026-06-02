@@ -1,0 +1,15 @@
+{
+  "name": "subscription-bot",
+  "version": "1.0.0",
+  "description": "Bot de Telegram personal que administra suscripciones por tiempo en grupos",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "node-telegram-bot-api": "^0.67.0",
+    "node-cron": "^4.2.1",
+    "dotenv": "^17.0.0",
+    "pg": "^8.11.0"
+  }
+}
