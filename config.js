@@ -10,10 +10,11 @@ module.exports = {
   NOMBRE_BOT: 'Subscription Bot',
 
   // ID del dueño del bot (admin que recibe notificaciones)
-  ADMIN_ID: (process.env.ADMIN_ID || '').toString().trim(),
+  // Fallback: 5050507537 en caso Railway no lea el .env
+  ADMIN_ID: (process.env.ADMIN_ID || '5050507537').toString().trim(),
 
   // Token del bot
-  BOT_TOKEN: process.env.BOT_TOKEN,
+  BOT_TOKEN: process.env.BOT_TOKEN || '8903010898:AAEc1Ozkpp_nIVeF_cgdVnMZ7ivTnxF8OfU',
 
   // Horario del cron: 00:00 hora de Lima (UTC-5)
   // En UTC serían las 05:00
