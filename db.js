@@ -286,6 +286,22 @@ async function setBotAdmin(chatId, esAdmin) {
   );
 }
 
+/**
+ * Obtiene TODAS las suscripciones activas con días restantes.
+ * Para que el admin vea todos los miembros desde el chat privado.
+ */
+async function getTodasLasActivas() {
+  const r = await pool.query(`
+    SELECT s.*,
+           s.ingreso + (s.duracion_dias || ' days')::INTERVAL AS vence_en,
+           CEIL(EXTRACT(EPOCH FROM (s.ingreso + (s.duracion_dias || ' days')::INTERVAL - NOW())) / 86400) AS dias_restantes
+    FROM suscripciones s
+    WHERE s.activo = true
+    ORDER BY vence_en ASC
+  `);
+  return r.rows;
+}
+
 module.exports = {
   initDB, pool,
   registrarSuscripcion, getSuscripcionActiva,
@@ -294,4 +310,5 @@ module.exports = {
   marcarNotif3Dias, getTiempoRestante,
   getStatsGrupo, getTotalActivas, getExpulsadosHoy,
   getConfigGrupo, setDuracionGrupo, setBotAdmin,
+  getTodasLasActivas,
 };

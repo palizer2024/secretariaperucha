@@ -227,8 +227,55 @@ bot.onText(/\/tiempo/, async (msg) => {
   const chatType = msg.chat.type;
   const chatId = msg.chat.id;
 
-  // Si es chat privado, necesita saber en qué grupo preguntar
+  // Si es chat privado
   if (chatType === 'private') {
+    // Si es el ADMIN, mostrar TODOS los miembros con su tiempo restante
+    if (String(userId) === ADMIN_ID) {
+      try {
+        const todas = await db.getTodasLasActivas();
+
+        if (!todas.length) {
+          await send(chatId, `📭 No hay suscripciones activas en ningún grupo.`);
+          return;
+        }
+
+        let texto = `📊 <b>Todos los miembros — ${todas.length} activos</b>\n\n`;
+
+        for (const sub of todas) {
+          const username = sub.username || `ID:${sub.user_id}`;
+          const dias = parseInt(sub.dias_restantes);
+          const grupoId = sub.chat_id;
+
+          // Intentar obtener nombre del grupo
+          let nombreGrupo = grupoId;
+          try {
+            const chat = await bot.getChat(sub.chat_id);
+            nombreGrupo = chat.title || grupoId;
+          } catch {}
+
+          const emoji = dias <= 3 ? '🔴' : dias <= 7 ? '🟡' : '🟢';
+          texto += `${emoji} <b>${username}</b>\n`;
+          texto += `   📍 ${nombreGrupo}\n`;
+          texto += `   ⏱ ${dias} días restantes — Vence: ${formatDate(sub.vence_en)}\n\n`;
+        }
+
+        // Enviar en partes si es muy largo (Telegram max 4096 chars)
+        if (texto.length > 4000) {
+          const partes = texto.match(/[\s\S]{1,4000}/g) || [texto];
+          for (const parte of partes) {
+            await send(chatId, parte);
+          }
+        } else {
+          await send(chatId, texto);
+        }
+      } catch (e) {
+        console.error('❌ Error en /tiempo admin:', e.message);
+        await send(chatId, '❌ Error al obtener los datos.');
+      }
+      return;
+    }
+
+    // Usuario normal en privado
     await send(chatId,
       `📅 Para consultar tu tiempo restante, escribe /tiempo en el grupo donde estás suscrito.\n\n` +
       `Si no recuerdas en qué grupos estás, contacta al administrador.`
